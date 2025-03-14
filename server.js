@@ -5,11 +5,21 @@ const expenseRoutes = require('./routes/expenseRoutes');
 const purchaseRoutes = require("./routes/purchaseRoutes");
 const path = require('path'); // Import the 'path' module
 require('dotenv').config();  // ✅ Load environment variables
+const helmet = require('helmet');
+const compression= require('compression');
+const https=require('https');
+const fs=require('fs');
 
 const app = express();
 
+const privateKey=fs.readFileSync('server.key');
+const certificte=fs.readFileSync('server.cert');
+app.use(helmet());
+app.use(compression());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 // ✅ Use sessions for authentication
 app.use(session({
@@ -40,4 +50,4 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-app.listen(5000, () => console.log("Server is running at http://localhost:5000"));
+https.createServer({key: privateKey, cert: certificte},app).listen(5000, () => console.log("Server is running at http://localhost:5000"));
